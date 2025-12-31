@@ -66,7 +66,7 @@ Done 👍
 BAC TRAC works for any drink where you know:
 
 - **Total Drink Volume (ml)**  
-- **Alcohol Volume (ml)** — the alcohol liquid only (e.g., vodka amount)  
+- **Alcohol Volume (ml)** — the alcohol liquid only (e.g., vodka amount in a mixed drink like a vodka lemonade)  
 - **ABV (%)**  
 - **Sip Size (ml)** — your average mouthful  
 
