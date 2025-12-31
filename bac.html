@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>BAC TRAC</title>
+<style>
+:root{
+  --bg: rgba(20,20,25,0.55);
+  --text: #e6ecff;
+  --subtext: #fefeff;
+}
+
+body{
+  margin:0;
+  font-family: Inter, system-ui, Arial;
+  color: var(--text);
+  background: rgba(0, 7, 112, 0.582);
+}
+
+.container{
+  padding:18px 22px;
+  border-radius:18px;
+  background: var(--bg);
+  backdrop-filter: blur(14px);
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 10px 28px rgba(0,0,0,0.35);
+  width:360px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:6px 8px;
+  align-items:center;
+}
+
+label{
+  font-size:13px;
+  color:var(--subtext);
+}
+
+input,select{
+  background:#0f1116;
+  color:white;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;
+  padding:4px 7px;
+}
+
+.bac{
+  margin-top:10px;
+  font-size:28px;
+  font-weight:700;
+}
+
+.sub{
+  color:var(--subtext);
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+.barwrap{
+  width:100%;
+  height:12px;
+  border-radius:8px;
+  background:#0f1218;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+.bar{
+  height:100%;
+  width:0%;
+  border-radius:8px;
+  transition:width .7s ease;
+  background:linear-gradient(90deg,#66ccff,#aaffcc);
+}
+
+.log{
+  font-size:12px;
+  color:#d2d7e3;
+  border-top:1px solid rgba(255,255,255,0.08);
+  margin-top:10px;
+  padding-top:8px;
+}
+
+.titleBar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.titleBar h2{
+    margin:0;
+    font-size: 28px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="grid">
+    <label>Weight (Kg)</label>
+    <input id="weight" type="number" value="80">
+
+    <label>Gender</label>
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label>Total Drink Vol (ml)</label>
+    <input id="drinkVol" type="number" value="2000">
+
+    <label>Alcohol Vol (ml)</label>
+    <input id="alcVol" type="number" value="200">
+
+    <label>ABV (%)</label>
+    <input id="abv" type="number" value="37.5">
+
+    <label>Sip Size (ml)</label>
+    <input id="sip" type="number" value="30">
+  </div>
+
+  <div style="margin-top:10px">
+    <button onclick="logSip()">Sip</button>
+    <button onclick="Reset()">Reset</button>
+  </div>
+
+  
+  <div class = "titleBar">
+    <h2>🍻 BAC Tracker</h2>
+    <div class="bac" id="bac">0.000%</div> 
+  </div>
+
+  <div class="sub" id="stats">Sips: 0 • Time: 0.00 hrs</div>
+
+  <div class="barwrap"><div class="bar" id="bar"></div></div>
+
+  <div class="log" id="log">No Alcohol Logged Yet</div>
+</div>
+
+<script>
+// grams / time
+let events = [];
+
+// g/ml ethanol
+const density = 0.789;
+
+// bac lost /hr
+const metabolism = 0.015;
+
+function logSip(){
+  const total = +document.getElementById("drinkVol").value;
+  const alcMl = +document.getElementById("alcVol").value;
+  const abv = +document.getElementById("abv").value;
+  const sip = +document.getElementById("sip").value;
+
+  if(total <= 0 || alcMl < 0 || sip <= 0) return;
+
+  const fraction = alcMl / total;
+  const alcoholLiquidInSip = sip * fraction;
+  const ethanolMl = alcoholLiquidInSip * (abv/100);
+  const grams = ethanolMl * density;
+
+  events.push({
+    grams,
+    time: Date.now()
+  });
+}
+
+function Reset(){
+  events = [];
+}
+
+function calcBAC(){
+
+  const weight = +document.getElementById("weight").value || 80;
+  const gender = document.getElementById("gender").value;
+  const r = gender === "male" ? 0.68 : 0.55;
+
+  let bac = 0;
+  let first = null;
+
+  events.forEach(e=>{
+    if(!first) first = e.time;
+
+    const hours = (Date.now()-e.time)/3600000;
+
+    const spike = (e.grams / (weight * r * 10));
+
+    bac += Math.max(spike - metabolism*hours, 0);
+  });
+
+  return {
+    bac: Math.max(bac,0),
+    hours: first ? (Date.now()-first)/3600000 : 0
+  };
+}
+
+function render(){
+
+  const {bac, hours} = calcBAC();
+
+  document.getElementById("bac").innerText = bac.toFixed(3)+"%";
+
+  document.getElementById("stats").innerText =
+    `Sips: ${events.length} • Time: ${hours.toFixed(2)} hrs`;
+
+  document.getElementById("bar").style.width =
+    //Math.min(bac*10,100)+"%";
+    Math.min((bac / 0.25) * 100, 100)+"%";
+  
+  const start = Math.max(0, events.length - 3);
+  const recent = events.slice(start);
+
+  document.getElementById("log").innerHTML =
+    events.length === 0
+      ? "No Alcohol Logged Yet"
+      : recent.map((e,i)=>
+          `#${start + i + 1} ${(e.grams).toFixed(2)}g ethanol`
+        ).join("<br>");
+}
+
+setInterval(render,1000);
+</script>
+</body>
+</html>
