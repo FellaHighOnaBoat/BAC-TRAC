@@ -55,7 +55,7 @@ Open it in **any modern browser** — no install needed.
 ### 3️⃣ (Optional) Add to OBS
 Add as a **WINDOW CAPTURE**  
 Crop the settings panel so only the live BAC display is shown.
-It __**WILL NOT**__ work as a browser source as you will not be able to edit the settings or press the sip button until later versions
+It __**WILL NOT**__ work as a browser source as you will not be able to edit the settings or press the sip button until later versions.
 
 Done 👍
 
