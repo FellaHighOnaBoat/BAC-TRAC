@@ -142,13 +142,6 @@ If you feel unwell while drinking — **seek help.**
 
 ---
 
-## ❤️ Credits
-
-Created for fun and streaming use.  
-Built using JavaScript and the Widmark BAC model.
-
----
-
 ## 🙌 Contributions / Suggestions
 
 Suggestions welcome!  
