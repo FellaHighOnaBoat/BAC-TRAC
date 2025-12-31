@@ -79,7 +79,7 @@ BAC TRAC works for any drink where you know:
 | ABV (%) | `6` |
 | Sip Size | however much you drink per sip |
 
-### Example — Vodka Lemonade
+### Example — Vodka Lemonade (400ml total drink, 50ml of it is vodka)
 
 | Field | Value |
 |------|-------|
